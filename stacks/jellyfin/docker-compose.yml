@@ -1,0 +1,14 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1028
+      - PGID=100
+      - TZ=Asia/Kuala_Lumpur
+    ports:
+      - 8096:8096
+    volumes:
+      - ${DOCKER_DATA}/jellyfin:/config
+      - ${SHARED_DATA}/media:/media
+    restart: unless-stopped
