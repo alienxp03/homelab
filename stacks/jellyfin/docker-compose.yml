@@ -12,3 +12,7 @@ services:
       - ${DOCKER_DATA}/jellyfin:/config
       - ${SHARED_DATA}/media:/media
     restart: unless-stopped
+    # https://mariushosting.com/how-to-install-jellyfin-with-hardware-transcoding-on-your-synology-nas/
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card0:/dev/dri/card0
