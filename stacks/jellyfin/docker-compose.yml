@@ -2,12 +2,10 @@ services:
   jellyfin:
     image: jellyfin/jellyfin:latest
     container_name: jellyfin
-    env_file:
-      - ../../stack.env
     environment:
-      - PUID==${DOCKER_PUID}
-      - PGID=${DOCKER_PGID}
-      - TZ=${TZ}
+      - PUID=1028
+      - PGID=100
+      - TZ=Asia/Kuala_Lumpur
     ports:
       - 8096:8096
     volumes:
