@@ -1,0 +1,24 @@
+global:
+  defaultStorageClass: ""
+
+namespaceOverride: metallb-system
+
+# IP Address Pool Configuration
+ipAddressPool:
+  name: lan-pool
+  addresses:
+    - 192.168.68.150-192.168.68.180
+  autoAssign: true
+
+# L2 Advertisement Configuration
+l2Advertisement:
+  name: lan-adv
+  ipAddressPools:
+    - lan-pool
+
+# Bitnami MetalLB Configuration
+controller:
+  logLevel: debug
+
+speaker:
+  logLevel: debug
