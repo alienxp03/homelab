@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: synology-ingressroute
+  namespace: synology
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`synology.homelab.azuanz.com`)
+      kind: Rule
+      services:
+        - name: synology
+          port: 80
+          scheme: https
+          serversTransport: insecure-transport
+  tls:
+    secretName: homelab-certificate-secret
