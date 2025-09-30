@@ -1,0 +1,11 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: {{ .Values.ipAddressPool.name }}
+  namespace: {{ .Values.namespaceOverride }}
+spec:
+  addresses:
+{{- range .Values.ipAddressPool.addresses }}
+  - {{ . | quote }}
+{{- end }}
+  autoAssign: {{ .Values.ipAddressPool.autoAssign }}
