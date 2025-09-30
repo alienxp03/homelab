@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyfin-ingressroute
+  namespace: jellyfin
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`jellyfin.homelab.azuanz.com`)
+      kind: Rule
+      services:
+        - name: jellyfin
+          port: 80
+          passHostHeader: true
+          scheme: http
+  tls:
+    secretName: homelab-certificate-secret
