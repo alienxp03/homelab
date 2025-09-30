@@ -1,0 +1,9 @@
+apiVersion: v2
+name: uptime-kuma
+description: Uptime monitoring for homelab
+type: application
+version: 0.1.0
+dependencies:
+  - name: uptime-kuma
+    version: 2.22.0
+    repository: https://helm.irsigler.cloud

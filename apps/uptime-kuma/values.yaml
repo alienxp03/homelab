@@ -1,0 +1,18 @@
+image:
+  repository: louislam/uptime-kuma
+  tag: 1
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3001
+
+persistence:
+  enabled: true
+  size: 4Gi
+  storageClass: local-path
+
+hostAliases:
+  - ip: "192.168.68.153"
+    hostnames:
+      - "traefik.homelab.azuanz.com"
