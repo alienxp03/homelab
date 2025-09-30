@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: adguard-home-ingressroute
+  namespace: adguard-home
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`adguard-home.homelab.azuanz.com`)
+      kind: Rule
+      services:
+        - name: adguard-home
+          port: 80
+  tls:
+    secretName: homelab-certificate-secret

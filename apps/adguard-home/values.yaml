@@ -1,0 +1,52 @@
+env:
+  TZ: "Asia/Kuala_Lumpur"
+
+service:
+  main:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.68.151
+    externalTrafficPolicy: Local
+    annotations:
+      metallb.universe.tf/address-pool: lan-pool
+      metallb.universe.tf/allow-shared-ip: adguard-shared
+    ports:
+      http:
+        port: 80
+        targetPort: 80
+  dns-tcp:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.68.151
+    externalTrafficPolicy: Local
+    annotations:
+      metallb.universe.tf/address-pool: lan-pool
+      metallb.universe.tf/allow-shared-ip: adguard-shared
+    ports:
+      dns-tcp:
+        enabled: true
+        port: 53
+        targetPort: 53
+      dns-over-tls:
+        enabled: false
+  dns-udp:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.68.151
+    externalTrafficPolicy: Local
+    annotations:
+      metallb.universe.tf/address-pool: lan-pool
+      metallb.universe.tf/allow-shared-ip: adguard-shared
+    ports:
+      dns-udp:
+        enabled: true
+        port: 53
+        targetPort: 53
+        protocol: UDP
+      dns-over-quic:
+        enabled: false
+
+persistence:
+  config:
+    enabled: true
+    type: emptyDir
+  data:
+    enabled: true
+    type: emptyDir
