@@ -1,2 +1,9 @@
 .env
 *.tgz
+*.pem
+*secret.yaml
+*secret.yml
+
+# Allow sealed secrets
+!sealed-secret.yaml
+!sealed-secret.yml
