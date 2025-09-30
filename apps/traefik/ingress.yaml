@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-ingressroute
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # - match: Host(`traefik.homelab.azuanz.com`)
+    - match: Host(`traefik.homelab.azuanz.com`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - kind: TraefikService
+          name: api@internal
+  tls:
+    secretName: homelab-certificate-secret
