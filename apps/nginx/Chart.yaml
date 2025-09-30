@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nginx
+description: Minimal nginx for k3s
+type: application
+version: 0.1.0
+icon: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"

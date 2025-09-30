@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nginx-certificate
+  namespace: traefik
+spec:
+  secretName: homelab-certificate-secret
+  issuerRef:
+    kind: ClusterIssuer
+    name: cloudflare-clusterissuer
+  commonName: "*.homelab.azuanz.com"
+  dnsNames:
+    - "*.homelab.azuanz.com"
+  privateKey:
+    rotationPolicy: Always
