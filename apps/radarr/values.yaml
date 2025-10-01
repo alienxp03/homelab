@@ -1,0 +1,59 @@
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/radarr
+          tag: latest
+        env:
+          TZ: Asia/Kuala_Lumpur
+          PUID: "1028"
+          PGID: "100"
+
+service:
+  main:
+    ports:
+      http:
+        port: 7878
+        targetPort: 7878
+
+ingress:
+  main:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: radarr.homelab.azuanz.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: homelab-certificate-secret
+        hosts:
+          - radarr.homelab.azuanz.com
+
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    size: 2Gi
+    storageClass: local-path
+    accessMode: ReadWriteOnce
+    globalMounts:
+      - path: /config
+
+  media:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: pvc-synology-media-rwx
+    globalMounts:
+      - path: /data
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi

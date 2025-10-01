@@ -1,0 +1,51 @@
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    containers:
+      main:
+        image:
+          repository: fallenbagel/jellyseerr
+          tag: latest
+        env:
+          TZ: Asia/Kuala_Lumpur
+          LOG_LEVEL: info
+
+service:
+  main:
+    ports:
+      http:
+        port: 5055
+        targetPort: 5055
+
+ingress:
+  main:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: jellyseerr.homelab.azuanz.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: homelab-certificate-secret
+        hosts:
+          - jellyseerr.homelab.azuanz.com
+
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    size: 2Gi
+    storageClass: local-path
+    accessMode: ReadWriteOnce
+    globalMounts:
+      - path: /app/config
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi

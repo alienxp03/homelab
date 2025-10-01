@@ -1,0 +1,60 @@
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/qbittorrent
+          tag: latest
+        env:
+          TZ: Asia/Kuala_Lumpur
+          PUID: "1028"
+          PGID: "100"
+          WEBUI_PORT: "8080"
+
+service:
+  main:
+    ports:
+      http:
+        port: 8080
+        targetPort: 8080
+
+ingress:
+  main:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: qbittorrent.homelab.azuanz.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: homelab-certificate-secret
+        hosts:
+          - qbittorrent.homelab.azuanz.com
+
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    size: 2Gi
+    storageClass: local-path
+    accessMode: ReadWriteOnce
+    globalMounts:
+      - path: /config
+
+  media:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: pvc-synology-media-rwx
+    globalMounts:
+      - path: /data
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi

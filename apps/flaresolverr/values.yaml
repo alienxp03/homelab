@@ -1,0 +1,41 @@
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    containers:
+      main:
+        image:
+          repository: ghcr.io/flaresolverr/flaresolverr
+          tag: latest
+        env:
+          TZ: Asia/Kuala_Lumpur
+          LOG_LEVEL: info
+
+service:
+  main:
+    ports:
+      http:
+        port: 8191
+        targetPort: 8191
+
+ingress:
+  main:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: flaresolverr.homelab.azuanz.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: homelab-certificate-secret
+        hosts:
+          - flaresolverr.homelab.azuanz.com
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
