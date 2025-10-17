@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a Kubernetes homelab setup running on k3s, managing applications through Helm charts and custom manifests. The infrastructure uses Traefik as the ingress controller with automatic SSL certificates via cert-manager and Cloudflare DNS.
+This is a Kubernetes homelab setup running on k3s, managing applications through Helm charts and custom manifests. The infrastructure uses Traefik as the ingress controller with automatic SSL certificates via cert-manager and Cloudflare DNS. Prioritize GitOps approach (everything is trackable in Git)
 
 ## Architecture
 
@@ -57,11 +57,13 @@ Provides LoadBalancer IPs for bare-metal k3s cluster. Configuration in `apps/met
 - Configuration file: `apps/coredns/coredns-custom.yaml`
 
 **DNS Resolution Flow**:
+
 ```
 Pod → CoreDNS → AdGuard Home (192.168.68.151) → Local IP (192.168.68.153)
 ```
 
 **Apply DNS Configuration**:
+
 ```bash
 make install-coredns-custom  # Apply custom DNS forwarding rules
 make status-coredns-custom   # Check CoreDNS configuration status
@@ -132,4 +134,3 @@ curl -vk https://<hostname>.homelab.azuanz.com
 - The wildcard certificate `homelab-certificate-secret` should be reused across apps
 - Custom Helm charts (nginx, metallb) are stored locally in `apps/` with templates
 - External Helm charts require adding repos before installation (see Makefile targets)
-

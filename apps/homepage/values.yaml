@@ -1,0 +1,80 @@
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    pod:
+      securityContext:
+        runAsUser: 1028
+        runAsGroup: 100
+        fsGroup: 100
+    initContainers:
+      copy-config:
+        image:
+          repository: busybox
+          tag: latest
+        command:
+          - sh
+          - -c
+          - cp /tmp/config-source/* /app/config/ 2>/dev/null || true
+    containers:
+      main:
+        image:
+          repository: ghcr.io/gethomepage/homepage
+          tag: latest
+        env:
+          TZ: Asia/Kuala_Lumpur
+          PUID: "1028"
+          PGID: "100"
+          HOMEPAGE_ALLOWED_HOSTS: "homepage.homelab.azuanz.com"
+
+# ServiceAccount is set via rbac.yaml and patched after deployment
+service:
+  main:
+    ports:
+      http:
+        port: 3000
+        targetPort: 3000
+
+ingress:
+  main:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: homepage.homelab.azuanz.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: homelab-certificate-secret
+        hosts:
+          - homepage.homelab.azuanz.com
+
+# Writable config directory with ConfigMap files copied via init container
+persistence:
+  config:
+    enabled: true
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /app/config
+        copy-config:
+          - path: /app/config
+
+  config-source:
+    enabled: true
+    type: configMap
+    name: homepage-config
+    advancedMounts:
+      main:
+        copy-config:
+          - path: /tmp/config-source
+            readOnly: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: homepage
+data:
+  settings.yaml: |
+    title: Homelab Dashboard
+    favicon: https://gethomepage.dev/img/favicon.ico
+    theme: dark
+    color: slate
+    headerStyle: clean
+    layout:
+      Media:
+        style: row
+        columns: 4
+      Monitoring:
+        style: row
+        columns: 3
+      Network:
+        style: row
+        columns: 3
+      Infrastructure:
+        style: row
+        columns: 2
+
+  bookmarks.yaml: |
+    - Developer:
+        - GitHub:
+            - icon: github.png
+              href: https://github.com
+        - GitLab:
+            - icon: gitlab.png
+              href: https://gitlab.com
+    - Homelab:
+        - Kubernetes Dashboard:
+            - icon: kubernetes.png
+              href: https://kubernetes.io/docs/
+        - Traefik Docs:
+            - icon: traefik.png
+              href: https://doc.traefik.io/traefik/
+
+  services.yaml: |
+    - Media:
+        - Sonarr:
+            icon: sonarr.png
+            href: https://sonarr.homelab.azuanz.com
+            description: TV Shows Management
+        - Radarr:
+            icon: radarr.png
+            href: https://radarr.homelab.azuanz.com
+            description: Movies Management
+        - Prowlarr:
+            icon: prowlarr.png
+            href: https://prowlarr.homelab.azuanz.com
+            description: Indexer Management
+        - Bazarr:
+            icon: bazarr.png
+            href: https://bazarr.homelab.azuanz.com
+            description: Subtitles Management
+        - qBittorrent:
+            icon: qbittorrent.png
+            href: https://qbittorrent.homelab.azuanz.com
+            description: Torrent Client
+        - Jellyseerr:
+            icon: jellyseerr.png
+            href: https://jellyseerr.homelab.azuanz.com
+            description: Media Request Management
+
+    - Monitoring:
+        - Grafana:
+            icon: grafana.png
+            href: https://grafana.homelab.azuanz.com
+            description: Metrics & Logs Visualization
+        - Prometheus:
+            icon: prometheus.png
+            href: https://prometheus.homelab.azuanz.com
+            description: Metrics Collection
+        - Loki:
+            icon: loki.png
+            href: https://loki.homelab.azuanz.com
+            description: Log Aggregation
+        - Uptime Kuma:
+            icon: uptime-kuma.png
+            href: https://uptime-kuma.homelab.azuanz.com
+            description: Uptime Monitoring
+
+    - Network:
+        - Traefik:
+            icon: traefik.png
+            href: https://traefik.homelab.azuanz.com
+            description: Reverse Proxy & Ingress
+        - Pi-hole:
+            icon: pi-hole.png
+            href: http://192.168.68.152
+            description: Network-wide Ad Blocking
+        - AdGuard Home:
+            icon: adguard-home.png
+            href: http://192.168.68.151
+            description: DNS Server & Ad Blocking
+
+    - Infrastructure:
+        - MetalLB:
+            icon: metallb.png
+            description: LoadBalancer for Bare Metal
+        - Cert Manager:
+            icon: cert-manager.png
+            description: SSL Certificate Management
+
+  widgets.yaml: |
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: "K3s Cluster"
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+    - datetime:
+        text_size: xl
+        format:
+          timeStyle: short
+          dateStyle: long
+
+  kubernetes.yaml: |
+    mode: cluster

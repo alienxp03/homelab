@@ -2,6 +2,26 @@ dashboard: true
 
 log:
   level: DEBUG
+  format: json
+
+accessLog:
+  enabled: true
+  format: json
+  filters:
+    statusCodes:
+      - "200-299"
+      - "300-399"
+      - "400-499"
+      - "500-599"
+  fields:
+    defaultMode: keep
+    headers:
+      defaultMode: keep
+
+metrics:
+  prometheus:
+    enabled: true
+    entryPoint: metrics
 
 ports:
   web:
@@ -13,6 +33,13 @@ ports:
   websecure:
     tls:
       enabled: true
+  metrics:
+    port: 9100
+    expose:
+      default: true
+    exposedPort: 9100
+    protocol: TCP
+
 ingressRoute:
   dashboard:
     enabled: true
