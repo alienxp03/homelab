@@ -1,0 +1,77 @@
+---
+# Secret created separately with kubectl
+# kubectl create secret generic prowlarr-api-key -n media --from-literal=api-key='YOUR_API_KEY'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exportarr-prowlarr
+  namespace: media
+  labels:
+    app: exportarr-prowlarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: exportarr-prowlarr
+  template:
+    metadata:
+      labels:
+        app: exportarr-prowlarr
+    spec:
+      containers:
+        - name: exportarr
+          image: ghcr.io/onedr0p/exportarr:v2.0.1
+          args:
+            - prowlarr
+            - --port
+            - "9709"
+            - --url
+            - "http://prowlarr.media:9696"
+            - --api-key-file
+            - "/secrets/api-key"
+          ports:
+            - containerPort: 9709
+              name: metrics
+          volumeMounts:
+            - name: api-key
+              mountPath: /secrets
+              readOnly: true
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 128Mi
+              cpu: 100m
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: api-key
+          secret:
+            secretName: prowlarr-api-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exportarr-prowlarr
+  namespace: media
+  labels:
+    app: exportarr-prowlarr
+spec:
+  selector:
+    app: exportarr-prowlarr
+  ports:
+    - name: metrics
+      port: 9709
+      targetPort: 9709

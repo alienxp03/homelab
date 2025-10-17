@@ -1,0 +1,146 @@
+# Prometheus Operator Configuration
+prometheusOperator:
+  enabled: true
+
+# Prometheus Configuration
+prometheus:
+  enabled: true
+  prometheusSpec:
+    # Retention period for metrics
+    retention: 30d
+    retentionSize: "50GB"
+
+    # Storage configuration
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+
+    # Enable monitoring of all namespaces
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+
+    # Resource limits
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 2000m
+
+  # Disable default ingress (we'll use IngressRoute)
+  ingress:
+    enabled: false
+
+# Alertmanager Configuration
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 200m
+
+  # Disable default ingress (we'll use IngressRoute)
+  ingress:
+    enabled: false
+
+# Grafana Configuration
+grafana:
+  enabled: true
+
+  # Disable init container that causes permission issues
+  initChownData:
+    enabled: false
+
+  # Admin credentials
+  adminPassword: "changeme"
+
+  # Grafana configuration
+  grafana.ini:
+    server:
+      domain: grafana.homelab.azuanz.com
+      root_url: https://grafana.homelab.azuanz.com
+
+    # Anonymous access (optional, disable for production)
+    auth.anonymous:
+      enabled: false
+
+  # Persistence for dashboards
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  # Resource limits
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 200m
+
+  # Disable default ingress (we'll use IngressRoute)
+  ingress:
+    enabled: false
+
+  # Import default dashboards
+  defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: Asia/Kuala_Lumpur
+
+  # Additional datasources
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-gateway.monitoring.svc.cluster.local
+      jsonData:
+        maxLines: 1000
+      isDefault: false
+      editable: true
+
+# Node Exporter - Collects hardware and OS metrics
+nodeExporter:
+  enabled: true
+
+# kube-state-metrics - Collects Kubernetes object metrics
+kubeStateMetrics:
+  enabled: true
+
+# Enable ServiceMonitor for kube-proxy
+kubeProxy:
+  enabled: true
+
+# Enable monitoring for core components
+kubeApiServer:
+  enabled: true
+
+kubeControllerManager:
+  enabled: true
+
+kubeScheduler:
+  enabled: true
+
+kubeEtcd:
+  enabled: true
+
+coreDns:
+  enabled: true
+
+kubelet:
+  enabled: true

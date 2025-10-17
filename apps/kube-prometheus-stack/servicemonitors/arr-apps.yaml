@@ -1,0 +1,83 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sonarr-metrics
+  namespace: monitoring
+  labels:
+    app: exportarr-sonarr
+spec:
+  namespaceSelector:
+    matchNames:
+      - media
+  selector:
+    matchLabels:
+      app: exportarr-sonarr
+  endpoints:
+    - port: metrics
+      interval: 60s
+      path: /metrics
+      scrapeTimeout: 30s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: radarr-metrics
+  namespace: monitoring
+  labels:
+    app: exportarr-radarr
+spec:
+  namespaceSelector:
+    matchNames:
+      - media
+  selector:
+    matchLabels:
+      app: exportarr-radarr
+  endpoints:
+    - port: metrics
+      interval: 60s
+      path: /metrics
+      scrapeTimeout: 30s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: prowlarr-metrics
+  namespace: monitoring
+  labels:
+    app: exportarr-prowlarr
+spec:
+  namespaceSelector:
+    matchNames:
+      - media
+  selector:
+    matchLabels:
+      app: exportarr-prowlarr
+  endpoints:
+    - port: metrics
+      interval: 60s
+      path: /metrics
+      scrapeTimeout: 30s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: bazarr-metrics
+  namespace: monitoring
+  labels:
+    app: exportarr-bazarr
+spec:
+  namespaceSelector:
+    matchNames:
+      - media
+  selector:
+    matchLabels:
+      app: exportarr-bazarr
+  endpoints:
+    - port: metrics
+      interval: 60s
+      path: /metrics
+      scrapeTimeout: 30s
