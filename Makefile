@@ -23,6 +23,10 @@ help:
 	@echo "  - flaresolverr"
 	@echo "  - bazarr"
 	@echo "  - jellyseerr"
+	@echo "  - loki"
+	@echo "  - alloy"
+	@echo "  - kube-prometheus-stack"
+	@echo "  - homepage"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install pihole"
@@ -178,6 +182,55 @@ install-jellyseerr:
 		-f apps/jellyseerr/values.yaml
 	@echo "Jellyseerr installed successfully!"
 
+install-loki:
+	@echo "Installing Loki..."
+	@helm repo add grafana https://grafana.github.io/helm-charts || true
+	@helm repo update
+	helm upgrade --install loki grafana/loki \
+		--namespace monitoring \
+		--create-namespace \
+		-f apps/loki/values.yaml
+	@echo "Loki installed successfully!"
+	@echo "Applying Loki IngressRoute..."
+	kubectl apply -f apps/loki/ingress.yaml
+	@echo "Loki IngressRoute applied successfully!"
+
+install-alloy:
+	@echo "Installing Grafana Alloy..."
+	@helm repo add grafana https://grafana.github.io/helm-charts || true
+	@helm repo update
+	helm upgrade --install alloy grafana/alloy \
+		--namespace monitoring \
+		--create-namespace \
+		-f apps/alloy/values.yaml
+	@echo "Grafana Alloy installed successfully!"
+
+install-kube-prometheus-stack:
+	@echo "Upgrading kube-prometheus-stack with Loki datasource..."
+	@helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
+	@helm repo update
+	helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+		--namespace monitoring \
+		--create-namespace \
+		-f apps/kube-prometheus-stack/values.yaml
+	@echo "kube-prometheus-stack upgraded successfully!"
+
+install-homepage:
+	@echo "Installing Homepage..."
+	@kubectl create namespace homepage --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl apply -f apps/homepage/rbac.yaml
+	@kubectl apply -f apps/homepage/configmap.yaml
+	helm upgrade --install homepage bjw-s/app-template \
+		--namespace homepage \
+		--create-namespace \
+		-f apps/homepage/values.yaml
+	@echo "Patching deployment to use homepage ServiceAccount..."
+	@kubectl patch deployment homepage -n homepage -p '{"spec":{"template":{"spec":{"serviceAccountName":"homepage"}}}}'
+	@echo "Homepage installed successfully!"
+	@echo "Applying Homepage IngressRoute..."
+	@kubectl apply -f apps/homepage/ingress.yaml
+	@echo "Homepage IngressRoute applied successfully!"
+
 # Status targets
 status-pihole:
 	@echo "=== Pi-hole Status ==="
@@ -269,6 +322,34 @@ status-jellyseerr:
 	@echo ""
 	@kubectl -n media get svc -l app.kubernetes.io/instance=jellyseerr
 
+status-loki:
+	@echo "=== Loki Status ==="
+	@kubectl -n monitoring get pods -l app.kubernetes.io/name=loki
+	@echo ""
+	@kubectl -n monitoring get svc -l app.kubernetes.io/name=loki
+	@echo ""
+	@kubectl -n monitoring get ingressroute loki
+
+status-alloy:
+	@echo "=== Grafana Alloy Status ==="
+	@kubectl -n monitoring get pods -l app.kubernetes.io/name=alloy
+	@echo ""
+	@kubectl -n monitoring get daemonset -l app.kubernetes.io/name=alloy
+
+status-kube-prometheus-stack:
+	@echo "=== kube-prometheus-stack Status ==="
+	@kubectl -n monitoring get pods
+	@echo ""
+	@kubectl -n monitoring get svc
+
+status-homepage:
+	@echo "=== Homepage Status ==="
+	@kubectl -n homepage get pods
+	@echo ""
+	@kubectl -n homepage get svc
+	@echo ""
+	@kubectl -n homepage get ingressroute
+
 # Uninstall targets
 uninstall-pihole:
 	@echo "Uninstalling Pi-hole..."
@@ -345,3 +426,21 @@ uninstall-jellyseerr:
 	@echo "Uninstalling Jellyseerr..."
 	helm uninstall jellyseerr --namespace media
 	@echo "Jellyseerr uninstalled successfully!"
+
+uninstall-loki:
+	@echo "Uninstalling Loki..."
+	kubectl delete -f apps/loki/ingress.yaml || true
+	helm uninstall loki --namespace monitoring
+	@echo "Loki uninstalled successfully!"
+
+uninstall-alloy:
+	@echo "Uninstalling Grafana Alloy..."
+	helm uninstall alloy --namespace monitoring
+	@echo "Grafana Alloy uninstalled successfully!"
+
+uninstall-homepage:
+	@echo "Uninstalling Homepage..."
+	@kubectl delete -f apps/homepage/ingress.yaml || true
+	helm uninstall homepage --namespace homepage
+	@kubectl delete -f apps/homepage/rbac.yaml || true
+	@echo "Homepage uninstalled successfully!"
