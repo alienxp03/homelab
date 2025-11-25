@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: proxmox-ingressroute
+  namespace: proxmox
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`proxmox.homelab.azuanz.com`)
+      kind: Rule
+      services:
+        - name: proxmox
+          port: 80
+          scheme: https
+          serversTransport: insecure-transport
+  tls:
+    secretName: homelab-certificate-secret

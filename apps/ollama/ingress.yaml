@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ollama-ingressroute
+  namespace: ollama
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`ollama.homelab.azuanz.com`)
+      kind: Rule
+      services:
+        - name: ollama
+          port: 80
+  tls:
+    secretName: homelab-certificate-secret
