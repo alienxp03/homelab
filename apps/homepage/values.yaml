@@ -37,7 +37,7 @@ service:
 
 ingress:
   main:
-    enabled: true
+    enabled: false
     className: traefik
     hosts:
       - host: homepage.homelab.azuanz.com

@@ -1,7 +1,3 @@
----
-# Secret created separately with kubectl
-# kubectl create secret generic sonarr-api-key -n media --from-literal=api-key='YOUR_API_KEY'
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:

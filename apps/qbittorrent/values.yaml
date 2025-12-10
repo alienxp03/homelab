@@ -22,7 +22,7 @@ service:
 
 ingress:
   main:
-    enabled: true
+    enabled: false
     className: traefik
     hosts:
       - host: qbittorrent.homelab.azuanz.com
