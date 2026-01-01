@@ -8,7 +8,6 @@ help:
 	@echo "  make uninstall <app-name> Uninstall a Helm chart"
 	@echo ""
 	@echo "Available apps:"
-	@echo "  - pihole"
 	@echo "  - adguard-home"
 	@echo "  - traefik"
 	@echo "  - metallb"
@@ -29,8 +28,8 @@ help:
 	@echo "  - homepage"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make install pihole"
-	@echo "  make status pihole"
+	@echo "  make install adguard-home"
+	@echo "  make status adguard-home"
 
 setup:
 	@echo "Setup.."
@@ -49,16 +48,6 @@ setup-traefik:
 	@echo "Traefik setup successfully!"
 
 # Install targets
-install-pihole:
-	@echo "Installing Pi-hole..."
-	@helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes || true
-	@helm repo update
-	helm upgrade --install pihole mojo2600/pihole \
-		--namespace pihole \
-		--create-namespace \
-		-f apps/pihole/values.yaml
-	@echo "Pi-hole installed successfully!"
-
 install-adguard-home:
 	@echo "Installing AdGuard Home..."
 	@helm repo add gabe565 https://charts.gabe565.com || true
@@ -232,12 +221,6 @@ install-homepage:
 	@echo "Homepage IngressRoute applied successfully!"
 
 # Status targets
-status-pihole:
-	@echo "=== Pi-hole Status ==="
-	@kubectl -n pihole get pods
-	@echo ""
-	@kubectl -n pihole get svc
-
 status-adguard-home:
 	@echo "=== AdGuard Home Status ==="
 	@kubectl -n adguard-home get pods
@@ -351,11 +334,6 @@ status-homepage:
 	@kubectl -n homepage get ingressroute
 
 # Uninstall targets
-uninstall-pihole:
-	@echo "Uninstalling Pi-hole..."
-	helm uninstall pihole --namespace pihole
-	@echo "Pi-hole uninstalled successfully!"
-
 uninstall-adguard-home:
 	@echo "Uninstalling AdGuard Home..."
 	helm uninstall adguard-home --namespace adguard-home
