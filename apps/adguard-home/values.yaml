@@ -46,7 +46,15 @@ service:
 persistence:
   config:
     enabled: true
-    type: emptyDir
+    type: pvc
+    storageClass: local-path
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    retain: true
   data:
     enabled: true
-    type: emptyDir
+    type: pvc
+    storageClass: local-path
+    accessMode: ReadWriteOnce
+    size: 3Gi
+    retain: true
