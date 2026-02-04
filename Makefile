@@ -26,6 +26,9 @@ help:
 	@echo "  - alloy"
 	@echo "  - kube-prometheus-stack"
 	@echo "  - homepage"
+	@echo "  - speedtest-tracker"
+	@echo "  - paperless-ngx"
+	@echo "  - redis"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install adguard-home"
@@ -171,6 +174,15 @@ install-jellyseerr:
 		-f apps/jellyseerr/values.yaml
 	@echo "Jellyseerr installed successfully!"
 
+install-speedtest-tracker:
+	@echo "Installing Speedtest Tracker..."
+	@kubectl apply -f apps/speedtest-tracker/storage.yaml
+	helm upgrade --install speedtest-tracker bjw-s/app-template \
+		--namespace speedtest-tracker \
+		--create-namespace \
+		-f apps/speedtest-tracker/values.yaml
+	@echo "Speedtest Tracker installed successfully!"
+
 install-loki:
 	@echo "Installing Loki..."
 	@helm repo add grafana https://grafana.github.io/helm-charts || true
@@ -219,6 +231,30 @@ install-homepage:
 	@echo "Applying Homepage IngressRoute..."
 	@kubectl apply -f apps/homepage/ingress.yaml
 	@echo "Homepage IngressRoute applied successfully!"
+
+install-paperless-ngx:
+	@echo "Installing Paperless-ngx..."
+	@kubectl create namespace paperless --dry-run=client -o yaml | kubectl apply -f -
+	@echo "Applying Paperless NFS storage..."
+	@kubectl apply -f apps/paperless-ngx/storage.yaml
+	helm upgrade --install paperless-ngx bjw-s/app-template \
+		--namespace paperless \
+		--create-namespace \
+		-f apps/paperless-ngx/values.yaml
+	@echo "Paperless-ngx installed successfully!"
+	@echo "Applying Paperless IngressRoute..."
+	@kubectl apply -f apps/paperless-ngx/ingress.yaml
+	@echo "Paperless IngressRoute applied successfully!"
+
+install-redis:
+	@echo "Installing Redis..."
+	@helm repo add bitnami https://charts.bitnami.com/bitnami || true
+	@helm repo update
+	helm upgrade --install redis bitnami/redis \
+		--namespace redis \
+		--create-namespace \
+		-f apps/redis/values.yaml
+	@echo "Redis installed successfully!"
 
 # Status targets
 status-adguard-home:
@@ -305,6 +341,14 @@ status-jellyseerr:
 	@echo ""
 	@kubectl -n media get svc -l app.kubernetes.io/instance=jellyseerr
 
+status-speedtest-tracker:
+	@echo "=== Speedtest Tracker Status ==="
+	@kubectl -n speedtest-tracker get pods -l app.kubernetes.io/instance=speedtest-tracker
+	@echo ""
+	@kubectl -n speedtest-tracker get svc -l app.kubernetes.io/instance=speedtest-tracker
+	@echo ""
+	@kubectl -n speedtest-tracker get ingressroute
+
 status-loki:
 	@echo "=== Loki Status ==="
 	@kubectl -n monitoring get pods -l app.kubernetes.io/name=loki
@@ -332,6 +376,20 @@ status-homepage:
 	@kubectl -n homepage get svc
 	@echo ""
 	@kubectl -n homepage get ingressroute
+
+status-paperless-ngx:
+	@echo "=== Paperless-ngx Status ==="
+	@kubectl -n paperless get pods
+	@echo ""
+	@kubectl -n paperless get svc
+	@echo ""
+	@kubectl -n paperless get ingressroute
+
+status-redis:
+	@echo "=== Redis Status ==="
+	@kubectl -n redis get pods
+	@echo ""
+	@kubectl -n redis get svc
 
 # Uninstall targets
 uninstall-adguard-home:
@@ -405,6 +463,11 @@ uninstall-jellyseerr:
 	helm uninstall jellyseerr --namespace media
 	@echo "Jellyseerr uninstalled successfully!"
 
+uninstall-speedtest-tracker:
+	@echo "Uninstalling Speedtest Tracker..."
+	helm uninstall speedtest-tracker --namespace speedtest-tracker
+	@echo "Speedtest Tracker uninstalled successfully!"
+
 uninstall-loki:
 	@echo "Uninstalling Loki..."
 	kubectl delete -f apps/loki/ingress.yaml || true
@@ -422,3 +485,14 @@ uninstall-homepage:
 	helm uninstall homepage --namespace homepage
 	@kubectl delete -f apps/homepage/rbac.yaml || true
 	@echo "Homepage uninstalled successfully!"
+
+uninstall-paperless-ngx:
+	@echo "Uninstalling Paperless-ngx..."
+	@kubectl delete -f apps/paperless-ngx/ingress.yaml || true
+	helm uninstall paperless-ngx --namespace paperless
+	@echo "Paperless-ngx uninstalled successfully!"
+
+uninstall-redis:
+	@echo "Uninstalling Redis..."
+	helm uninstall redis --namespace redis
+	@echo "Redis uninstalled successfully!"

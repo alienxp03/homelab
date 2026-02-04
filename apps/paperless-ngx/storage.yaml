@@ -1,0 +1,131 @@
+# NFS Persistent Volumes for Paperless-ngx
+# Uses Synology NAS at 192.168.68.60
+# Folder structure: /volume1/family/paperless/{data,media,export,consume,redis}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-paperless-data
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+  nfs:
+    server: 192.168.68.60
+    path: /volume1/family/apps/paperless/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-ngx-data
+  namespace: paperless
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: pv-paperless-data
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-paperless-media
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+  nfs:
+    server: 192.168.68.60
+    path: /volume1/family/apps/paperless/media
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-ngx-media
+  namespace: paperless
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 50Gi
+  volumeName: pv-paperless-media
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-paperless-export
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+  nfs:
+    server: 192.168.68.60
+    path: /volume1/family/apps/paperless/export
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-ngx-export
+  namespace: paperless
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: pv-paperless-export
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-paperless-consume
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+  nfs:
+    server: 192.168.68.60
+    path: /volume1/family/apps/paperless/consume
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-ngx-consume
+  namespace: paperless
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: pv-paperless-consume

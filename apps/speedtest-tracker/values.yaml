@@ -1,0 +1,58 @@
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/speedtest-tracker
+          tag: latest
+        env:
+          TZ: Asia/Kuala_Lumpur
+          PUID: "1028"
+          PGID: "100"
+          APP_KEY: "base64:qGfISTnXGjis+RXAlrKGW3iFMQ1nqqw0g8AsOdgt9IA="
+          APP_URL: "https://speedtest.homelab.azuanz.com"
+          ASSET_URL: "https://speedtest.homelab.azuanz.com"
+          DB_CONNECTION: sqlite
+          DISPLAY_TIMEZONE: Asia/Kuala_Lumpur
+          SPEEDTEST_SCHEDULE: "0 * * * *"
+          SPEEDTEST_SERVERS: "28451,63813,72880,49657,11668"
+          SPEEDTEST_INTERNET_CHECK_HOSTNAME: "1.1.1.1"
+
+service:
+  main:
+    ports:
+      http:
+        port: 80
+        targetPort: 80
+
+ingress:
+  main:
+    enabled: false
+    className: traefik
+    hosts:
+      - host: speedtest.homelab.azuanz.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: homelab-certificate-secret
+        hosts:
+          - speedtest.homelab.azuanz.com
+
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: speedtest-config
+    globalMounts:
+      - path: /config
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi

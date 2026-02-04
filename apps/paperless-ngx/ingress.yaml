@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: paperless-ingressroute
+  namespace: paperless
+  annotations:
+    meta.helm.sh/release-name: paperless-ngx
+    meta.helm.sh/release-namespace: paperless
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`paperless.homelab.azuanz.com`)
+      kind: Rule
+      services:
+        - name: paperless-ngx
+          port: 8000
+  tls:
+    secretName: homelab-certificate-secret

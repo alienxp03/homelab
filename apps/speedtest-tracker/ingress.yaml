@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: speedtest-tracker-ingressroute
+  namespace: speedtest-tracker
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`speedtest.homelab.azuanz.com`)
+      kind: Rule
+      services:
+        - name: speedtest-tracker
+          port: 80
+  tls:
+    secretName: homelab-certificate-secret

@@ -1,0 +1,27 @@
+# Shared Redis service for homelab apps
+# Bitnami Redis Helm Chart configuration
+
+architecture: standalone
+
+auth:
+  enabled: false
+
+master:
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.68.152
+    annotations:
+      metallb.universe.tf/address-pool: lan-pool
+    ports:
+      redis: 6379
+
+  persistence:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi

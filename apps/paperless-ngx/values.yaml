@@ -1,0 +1,89 @@
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    pod:
+      securityContext:
+        fsGroup: 100
+    containers:
+      main:
+        image:
+          repository: ghcr.io/paperless-ngx/paperless-ngx
+          tag: latest
+        env:
+          TZ: Asia/Kuala_Lumpur
+          PAPERLESS_TIME_ZONE: Asia/Kuala_Lumpur
+          PAPERLESS_OCR_LANGUAGE: eng
+          PAPERLESS_SECRET_KEY: "ME7f+vFa+WJ0S9vpB7e/CEs5xe2VqC2tV92uuykHd6c="
+          PAPERLESS_URL: https://paperless.homelab.azuanz.com
+          # Redis configuration - using shared Redis service
+          PAPERLESS_REDIS: redis://redis-master.redis.svc.cluster.local:6379
+          # Admin user credentials
+          PAPERLESS_ADMIN_USER: admin
+          PAPERLESS_ADMIN_PASSWORD: Xy0JL4gODPzNZbfGUJrz
+          PAPERLESS_ADMIN_MAIL: admin@homelab.azuanz.com
+          # UID/GID mapping for Synology NFS
+          USERMAP_UID: "1024"
+          USERMAP_GID: "100"
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8000
+        targetPort: 8000
+
+ingress:
+  main:
+    enabled: false
+
+persistence:
+  # Main application data - uses pre-created NFS PVC
+  data:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: paperless-ngx-data
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/paperless/data
+
+  # Media files (PDFs, images) - uses pre-created NFS PVC
+  media:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: paperless-ngx-media
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/paperless/media
+
+  # Export directory - uses pre-created NFS PVC
+  export:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: paperless-ngx-export
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/paperless/export
+
+  # Consume directory (for importing documents) - uses pre-created NFS PVC
+  consume:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: paperless-ngx-consume
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/paperless/consume
+
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
