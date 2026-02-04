@@ -1,0 +1,80 @@
+# Gitea Helm Chart Values
+# Official chart: https://gitea.com/gitea/helm-chart
+
+replicaCount: 1
+
+image:
+  repository: gitea/gitea
+  tag: "1.22.3"
+  pullPolicy: IfNotPresent
+
+service:
+  http:
+    type: ClusterIP
+    port: 3000
+  ssh:
+    type: LoadBalancer
+    port: 22
+    loadBalancerIP: ""  # MetalLB will assign
+
+ingress:
+  enabled: false  # Using Traefik IngressRoute instead
+
+persistence:
+  enabled: true
+  existingClaim: gitea-data
+  size: 100Gi
+
+gitea:
+  admin:
+    username: gitea_admin
+    password: ""  # Set on first login
+    email: admin@homelab.azuanz.com
+
+  config:
+    database:
+      DB_TYPE: sqlite3
+      PATH: /data/gitea.db
+
+    repository:
+      ROOT: /data/git/repositories
+
+    server:
+      DOMAIN: git.homelab.azuanz.com
+      SSH_DOMAIN: git.homelab.azuanz.com
+      ROOT_URL: https://git.homelab.azuanz.com/
+      HTTP_PORT: 3000
+      SSH_PORT: 22
+      DISABLE_SSH: false
+      START_SSH_SERVER: true
+      LFS_START_SERVER: true
+
+    actions:
+      ENABLED: true
+      DEFAULT_ACTIONS_URL: https://github.com
+
+    security:
+      INSTALL_LOCK: false  # Allow initial setup
+      SECRET_KEY: ""  # Will be generated
+
+    service:
+      DISABLE_REGISTRATION: true
+      REQUIRE_SIGNIN_VIEW: false
+
+    log:
+      LEVEL: Info
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
