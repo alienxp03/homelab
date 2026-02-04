@@ -1,0 +1,38 @@
+# RBAC for Gitea Actions Runner
+# Allows runner to create Jobs and Pods for CI execution
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitea-runner
+  namespace: gitea
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gitea-runner
+  namespace: gitea
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/exec"]
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get", "list", "create", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gitea-runner
+  namespace: gitea
+subjects:
+  - kind: ServiceAccount
+    name: gitea-runner
+    namespace: gitea
+roleRef:
+  kind: Role
+  name: gitea-runner
+  apiGroup: rbac.authorization.k8s.io
