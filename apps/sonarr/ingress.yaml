@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`sonarr.homelab.azuanz.com`)
+    - match: Host(`series.homelab.azuanz.com`)
       kind: Rule
       services:
         - name: sonarr

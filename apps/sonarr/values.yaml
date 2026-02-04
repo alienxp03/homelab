@@ -24,14 +24,14 @@ ingress:
     enabled: false
     className: traefik
     hosts:
-      - host: sonarr.homelab.azuanz.com
+      - host: series.homelab.azuanz.com
         paths:
           - path: /
             pathType: Prefix
     tls:
       - secretName: homelab-certificate-secret
         hosts:
-          - sonarr.homelab.azuanz.com
+          - series.homelab.azuanz.com
 
 persistence:
   config:
@@ -57,4 +57,3 @@ resources:
   limits:
     cpu: "2"
     memory: 2Gi
-
