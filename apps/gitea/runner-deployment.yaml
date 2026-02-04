@@ -1,0 +1,77 @@
+# Gitea Actions Runner Deployment
+# Uses Kubernetes executor to spawn Jobs for CI tasks
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea-runner
+  namespace: gitea
+  labels:
+    app: gitea-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea-runner
+  template:
+    metadata:
+      labels:
+        app: gitea-runner
+    spec:
+      serviceAccountName: gitea-runner
+      containers:
+        - name: runner
+          image: gitea/act_runner:latest
+          imagePullPolicy: Always
+          env:
+            - name: GITEA_INSTANCE_URL
+              value: "http://gitea-http:3000"
+            - name: GITEA_RUNNER_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-runner-token
+                  key: token
+            - name: GITEA_RUNNER_NAME
+              value: "k8s-runner-1"
+            - name: GITEA_RUNNER_LABELS
+              value: "ubuntu-latest:docker://node:20-bullseye,self-hosted,linux,k8s"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Configure runner to use Kubernetes executor
+              cat > /data/config.yaml <<EOF
+              log:
+                level: info
+              runner:
+                name: k8s-runner-1
+                capacity: 10
+                timeout: 3h
+                labels:
+                  - "ubuntu-latest:docker://node:20-bullseye"
+                  - "self-hosted"
+                  - "linux"
+                  - "k8s"
+              EOF
+
+              # Register and start runner
+              act_runner register --no-interactive \
+                --instance "$GITEA_INSTANCE_URL" \
+                --token "$GITEA_RUNNER_REGISTRATION_TOKEN" \
+                --name "$GITEA_RUNNER_NAME" \
+                --labels "$GITEA_RUNNER_LABELS"
+
+              act_runner daemon
+          volumeMounts:
+            - name: runner-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: runner-data
+          emptyDir: {}
