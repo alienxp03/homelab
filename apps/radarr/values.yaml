@@ -24,14 +24,14 @@ ingress:
     enabled: false
     className: traefik
     hosts:
-      - host: radarr.homelab.azuanz.com
+      - host: movies.homelab.azuanz.com
         paths:
           - path: /
             pathType: Prefix
     tls:
       - secretName: homelab-certificate-secret
         hosts:
-          - radarr.homelab.azuanz.com
+          - movies.homelab.azuanz.com
 
 persistence:
   config:

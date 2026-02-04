@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`radarr.homelab.azuanz.com`)
+    - match: Host(`movies.homelab.azuanz.com`)
       kind: Rule
       services:
         - name: radarr
