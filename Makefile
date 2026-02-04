@@ -29,6 +29,7 @@ help:
 	@echo "  - speedtest-tracker"
 	@echo "  - paperless-ngx"
 	@echo "  - redis"
+	@echo "  - gitea"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install adguard-home"
@@ -256,6 +257,46 @@ install-redis:
 		-f apps/redis/values.yaml
 	@echo "Redis installed successfully!"
 
+install-gitea:
+	@echo "Installing Gitea..."
+	@helm repo add gitea-charts https://dl.gitea.com/charts/ || true
+	@helm repo update
+	@echo "Creating gitea namespace..."
+	@kubectl create namespace gitea --dry-run=client -o yaml | kubectl apply -f -
+	@echo "Applying Gitea storage..."
+	@kubectl apply -f apps/gitea/storage.yaml
+	@echo "Installing Gitea chart..."
+	helm upgrade --install gitea gitea-charts/gitea \
+		--namespace gitea \
+		--create-namespace \
+		-f apps/gitea/values.yaml
+	@echo "Waiting for Gitea to be ready..."
+	@kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=gitea -n gitea --timeout=300s
+	@echo "Applying Gitea IngressRoute..."
+	@kubectl apply -f apps/gitea/ingress.yaml
+	@echo ""
+	@echo "Gitea installed successfully!"
+	@echo ""
+	@echo "Access Gitea at: https://git.homelab.azuanz.com"
+	@echo ""
+	@echo "Next steps:"
+	@echo "1. Complete initial setup and create admin account"
+	@echo "2. Generate runner token: Site Administration → Actions → Runners"
+	@echo "3. Update apps/gitea/runner-secret.yaml with the token"
+	@echo "4. Run: make install-gitea-runner"
+
+install-gitea-runner:
+	@echo "Installing Gitea Actions Runner..."
+	@echo "Applying runner RBAC..."
+	@kubectl apply -f apps/gitea/runner-rbac.yaml
+	@echo "Applying runner secret..."
+	@kubectl apply -f apps/gitea/runner-secret.yaml
+	@echo "Deploying runner..."
+	@kubectl apply -f apps/gitea/runner-deployment.yaml
+	@echo "Gitea Actions Runner installed successfully!"
+	@echo ""
+	@echo "Check runner status with: make status-gitea-runner"
+
 # Status targets
 status-adguard-home:
 	@echo "=== AdGuard Home Status ==="
@@ -391,6 +432,24 @@ status-redis:
 	@echo ""
 	@kubectl -n redis get svc
 
+status-gitea:
+	@echo "=== Gitea Status ==="
+	@kubectl -n gitea get pods
+	@echo ""
+	@kubectl -n gitea get svc
+	@echo ""
+	@kubectl -n gitea get ingressroute
+	@echo ""
+	@echo "SSH LoadBalancer IP:"
+	@kubectl -n gitea get svc gitea-ssh -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+	@echo ""
+
+status-gitea-runner:
+	@echo "=== Gitea Actions Runner Status ==="
+	@kubectl -n gitea get pods -l app=gitea-runner
+	@echo ""
+	@kubectl -n gitea logs -l app=gitea-runner --tail=50
+
 # Uninstall targets
 uninstall-adguard-home:
 	@echo "Uninstalling AdGuard Home..."
@@ -496,3 +555,19 @@ uninstall-redis:
 	@echo "Uninstalling Redis..."
 	helm uninstall redis --namespace redis
 	@echo "Redis uninstalled successfully!"
+
+uninstall-gitea:
+	@echo "Uninstalling Gitea..."
+	@kubectl delete -f apps/gitea/ingress.yaml || true
+	helm uninstall gitea --namespace gitea
+	@echo "Gitea uninstalled successfully!"
+	@echo ""
+	@echo "Note: PersistentVolume and data retained. To remove:"
+	@echo "  kubectl delete -f apps/gitea/storage.yaml"
+
+uninstall-gitea-runner:
+	@echo "Uninstalling Gitea Actions Runner..."
+	@kubectl delete -f apps/gitea/runner-deployment.yaml || true
+	@kubectl delete -f apps/gitea/runner-secret.yaml || true
+	@kubectl delete -f apps/gitea/runner-rbac.yaml || true
+	@echo "Gitea Actions Runner uninstalled successfully!"

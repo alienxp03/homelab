@@ -1,0 +1,35 @@
+# NFS Persistent Volume for Gitea
+# Uses Synology NAS at 192.168.68.60
+# Folder: /volume1/family/apps/gitea/data
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-gitea-data
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+  nfs:
+    server: 192.168.68.60
+    path: /volume1/family/apps/gitea/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitea-data
+  namespace: gitea
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: pv-gitea-data
