@@ -90,10 +90,6 @@ data:
             icon: traefik.png
             href: https://traefik.homelab.azuanz.com
             description: Reverse Proxy & Ingress
-        - Pi-hole:
-            icon: pi-hole.png
-            href: http://192.168.68.152
-            description: Network-wide Ad Blocking
         - AdGuard Home:
             icon: adguard-home.png
             href: http://192.168.68.151
