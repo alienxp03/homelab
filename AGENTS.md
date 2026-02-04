@@ -84,7 +84,7 @@ make status-<app-name>     # Shows pods and services
 # Uninstall an application
 make uninstall-<app-name>
 
-# Available apps: pihole, adguard-home, traefik, metallb, nginx, coredns-custom
+# Available apps: pihole, adguard-home, traefik, metallb, nginx, coredns-custom, gitea
 ```
 
 ### Manual Deployment
@@ -127,6 +127,11 @@ curl -vk https://<hostname>.homelab.azuanz.com
 - `apps/traefik/values.yaml` - Traefik configuration (LoadBalancer, entryPoints)
 - `apps/traefik/ingress.yaml` - Traefik dashboard IngressRoute
 - `apps/coredns/coredns-custom.yaml` - CoreDNS custom DNS forwarding configuration for homelab domains
+- `apps/gitea/storage.yaml` - NFS storage configuration (100Gi)
+- `apps/gitea/values.yaml` - Gitea Helm chart values (SQLite, Actions enabled)
+- `apps/gitea/ingress.yaml` - Traefik IngressRoute for git.homelab.azuanz.com
+- `apps/gitea/runner-rbac.yaml` - RBAC for Actions runner
+- `apps/gitea/runner-deployment.yaml` - Actions runner with Kubernetes executor
 
 ## Important Notes
 
